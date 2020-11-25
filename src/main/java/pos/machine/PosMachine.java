@@ -12,6 +12,12 @@ public class PosMachine {
         System.out.println(posMachine.printReceipt(listOfBarcode));
     }
 
+    /*
+    P:3min
+    D:3min
+    C:all good
+    A:no need
+    */
     public String printReceipt(List<String> barcodes) {
         Map<String, Long> barcodeCountMap = countBarcode(barcodes);
 
@@ -27,6 +33,12 @@ public class PosMachine {
         return receipt;
     }
 
+    /*
+    P:5min
+    D:5min
+    C:doesnt know the method putIfAbsent
+    A:practice more
+    */
     private LinkedHashMap<String, Long> countBarcode(List<String> barcodes) {
         LinkedHashMap<String, Long> barcodeCountMap = new LinkedHashMap<>();
 
@@ -38,12 +50,24 @@ public class PosMachine {
         return barcodeCountMap;
     }
 
+    /*
+    P:2min
+    D:2min
+    C:all good
+    A:no need
+    */
     private int calculateSubTotal(String barcode, Long quantity) {
         List<ItemInfo> listOfItemInfo = ItemDataLoader.loadAllItemInfos();
         ItemInfo itemInfo = listOfItemInfo.stream().filter(e -> e.getBarcode().equals(barcode)).findAny().orElse(null);
         return (int) (itemInfo.getPrice() * quantity);
     }
 
+    /*
+    P:2min
+    D:2min
+    C:all good
+    A:no need
+    */
     private String generateSubStringForItem(String barcode, long quantity) {
         List<ItemInfo> listOfItemInfo = ItemDataLoader.loadAllItemInfos();
         ItemInfo itemInfo = listOfItemInfo.stream().filter(e -> e.getBarcode().equals(barcode)).findAny().orElse(null);
