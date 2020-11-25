@@ -1,13 +1,10 @@
 package pos.machine;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PosMachine {
-    private long total=0;
     public static void main(String[] args) {
         List<String> listOfBarcode = ItemDataLoader.loadBarcodes();
 
@@ -16,32 +13,39 @@ public class PosMachine {
     }
 
     public String printReceipt(List<String> barcodes) {
-        //Map<String, Long> barcodeMap = barcodes.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
-        Map<String, Long> barcodeMap2 = new LinkedHashMap<>();
-        for(String barcode : barcodes)
-        {
-            if(barcodeMap2.containsKey(barcode))
-            {
-                barcodeMap2.put(barcode,barcodeMap2.get(barcode)+1);
-            }else
-            {
-                barcodeMap2.put(barcode,(long)1);
-            }
-        }
-        String receipt = "***<store earning no money>Receipt***\n";
-        for (String i : barcodeMap2.keySet()) {
+        Map<String, Long> barcodeCountMap = countBarcode(barcodes);
 
-            String subReceipt = generateSubStringForItem(i, barcodeMap2.get(i));
-            receipt += subReceipt;
+        String receipt = "***<store earning no money>Receipt***\n";
+        int total = 0;
+
+        for (String barcode : barcodeCountMap.keySet()) {
+            receipt += generateSubStringForItem(barcode, barcodeCountMap.get(barcode));
+            total += calculateSubTotal(barcode, barcodeCountMap.get(barcode));
         }
+
         receipt += "----------------------\nTotal: " + total + " (yuan)\n**********************";
         return receipt;
     }
 
+    private LinkedHashMap<String, Long> countBarcode(List<String> barcodes) {
+        LinkedHashMap<String, Long> barcodeCountMap = new LinkedHashMap<>();
+        for (String barcode : barcodes) {
+            if (barcodeCountMap.putIfAbsent(barcode, (long) 1) != null) {
+                barcodeCountMap.put(barcode, barcodeCountMap.get(barcode) + 1);
+            }
+        }
+        return barcodeCountMap;
+    }
+
+    private int calculateSubTotal(String barcode, Long quantity) {
+        List<ItemInfo> listOfItemInfo = ItemDataLoader.loadAllItemInfos();
+        ItemInfo itemInfo = listOfItemInfo.stream().filter(e -> e.getBarcode().equals(barcode)).findAny().orElse(null);
+        return (int) (itemInfo.getPrice() * quantity);
+    }
+
     private String generateSubStringForItem(String barcode, long quantity) {
         List<ItemInfo> listOfItemInfo = ItemDataLoader.loadAllItemInfos();
-        ItemInfo itemInfo = listOfItemInfo.stream().filter(e->e.getBarcode().equals(barcode)).findAny().orElse(null);
-        total += itemInfo.getPrice() * quantity;
+        ItemInfo itemInfo = listOfItemInfo.stream().filter(e -> e.getBarcode().equals(barcode)).findAny().orElse(null);
         return "Name: " + itemInfo.getName() + ", Quantity: " + quantity + ", Unit price: " + itemInfo.getPrice() + " (yuan), Subtotal: " + quantity * itemInfo.getPrice() + " (yuan)\n";
     }
 }
