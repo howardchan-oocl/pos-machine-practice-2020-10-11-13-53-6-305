@@ -29,11 +29,12 @@ public class PosMachine {
 
     private LinkedHashMap<String, Long> countBarcode(List<String> barcodes) {
         LinkedHashMap<String, Long> barcodeCountMap = new LinkedHashMap<>();
+
         for (String barcode : barcodes) {
-            if (barcodeCountMap.putIfAbsent(barcode, (long) 1) != null) {
-                barcodeCountMap.put(barcode, barcodeCountMap.get(barcode) + 1);
-            }
+            barcodeCountMap.putIfAbsent(barcode, (long) 0);
+            barcodeCountMap.put(barcode, barcodeCountMap.get(barcode) + 1);
         }
+
         return barcodeCountMap;
     }
 
